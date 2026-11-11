@@ -4,9 +4,30 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReportGenerator {
+
+    public static void main(String[] args) {
+        PowerSupplyMonitor monitor = new PowerSupplyMonitor(11.4, 12.6, 5.0);
+        List<MonitorResult> results = new ArrayList<>();
+
+        results.add(monitor.evaluate(new PowerSupplyData("DS01", 230.0, 12.0, 2.5))); // Normal
+        results.add(monitor.evaluate(new PowerSupplyData("DS02", 230.0, 10.5, 2.0))); // Under Voltage
+        results.add(monitor.evaluate(new PowerSupplyData("DS03", 230.0, 13.2, 1.5))); // Over Voltage
+        results.add(monitor.evaluate(new PowerSupplyData("DS04", 230.0, 12.1, 6.2))); // Over Current
+        results.add(monitor.evaluate(new PowerSupplyData("DS05", 220.0, 12.0, 3.0))); // Normal
+
+        String outputPath = "target/reports/power_supply_report.html";
+        try {
+            generateHtmlReport(results, outputPath);
+            System.out.println("HTML Report generated successfully at: " + outputPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void generateHtmlReport(List<MonitorResult> results, String outputPath) throws IOException {
         if (Paths.get(outputPath).getParent() != null) {
             Files.createDirectories(Paths.get(outputPath).getParent());
@@ -16,7 +37,7 @@ public class ReportGenerator {
             writer.write("<style>");
             writer.write("body { font-family: Arial, sans-serif; margin: 20px; }");
             writer.write("table { border-collapse: collapse; width: 100%; }");
-            writer.write("th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }");
+            writer.write("th, td { border: 1px solid #dddddd; text-align: left; padding: 10px; }");
             writer.write("th { background-color: #004085; color: white; }");
             writer.write(".NORMAL { background-color: #d4edda; color: #155724; }");
             writer.write(".UNDER_VOLTAGE { background-color: #fff3cd; color: #856404; }");
